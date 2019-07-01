@@ -98,7 +98,6 @@ public enum Phone: Int {
     case i58Full
     case i61Full
     case i65Full
-
 }
 
 public protocol PhoneVariable {
@@ -138,3 +137,18 @@ extension PhoneVariable {
     private func matching(width: CGFloat, _ value: Self) -> Self { return Phone.current.width == width ? value : self }
     private func matching(phones: [Phone], _ value: Self) -> Self { return phones.contains(.current) ? value : self }
 }
+
+
+extension Int: PhoneVariable {}
+extension Bool: PhoneVariable {}
+extension Float: PhoneVariable {}
+extension Double: PhoneVariable {}
+extension String: PhoneVariable {}
+extension CGRect: PhoneVariable {}
+extension CGSize: PhoneVariable {}
+extension CGFloat: PhoneVariable {}
+extension CGPoint: PhoneVariable {}
+extension UIImage: PhoneVariable {}
+extension UIColor: PhoneVariable {}
+extension UIFont: PhoneVariable {}
+extension UIEdgeInsets: PhoneVariable {}
