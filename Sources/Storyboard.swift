@@ -55,7 +55,10 @@ public struct Storybord<T: UIViewController>: StoryboardLoader {
     
     public var bundle: Bundle? { return nil }
     
-    public static var main: Storybord<T> { return "Main" }
+    public static var main: Storybord<T> {
+        let name = (Bundle.main.object(forInfoDictionaryKey: "UIMainStoryboardFile") as? String) ?? "Main"
+        return Storybord(rawValue: name)
+    }
 }
 
 extension Storybord: ExpressibleByStringLiteral {
