@@ -3,23 +3,22 @@
 //
 //  Created by  XMFraker on 2019/7/2
 //  Copyright © XMFraker All rights reserved. (https://github.com/ws00801526)
-//  @class      Auto
 
 import UIKit
 
 public struct Auto {
-    
+
     public static func set(_ closure: @escaping ((Double) -> Double)) {
         self.closure = closure
     }
-    
+
     static var closure: ((Double) -> Double) = {
         guard UIDevice.current.userInterfaceIdiom == .phone else { return $0 }
         let base = 375.0
         let width = Double(min(UIScreen.main.bounds.width, UIScreen.main.bounds.height))
         return ($0 * (width / base)).rounded(places: 3)
     }
-    
+
     static func conversion(_ value: Double) -> Double {
         return closure(value)
     }
@@ -35,17 +34,17 @@ extension Double: AutoCalculator {
 
 extension BinaryInteger {
     public func auto() -> Double { return (Double("\(self)") ?? 0.0).auto() }
-    
+
     public func auto<T: BinaryInteger>() -> T { return T((Double("\(self)") ?? 0.0).auto()) }
-    
+
     public func auto<T: BinaryFloatingPoint>() -> T { return T((Double("\(self)") ?? 0.0).auto()) }
 }
 
 extension BinaryFloatingPoint {
     public func auto() -> Double { return (Double("\(self)") ?? 0.0).auto() }
-    
+
     public func auto<T: BinaryInteger>() -> T { return T((Double("\(self)") ?? 0.0).auto()) }
-    
+
     public func auto<T: BinaryFloatingPoint>() -> T { return T((Double("\(self)") ?? 0.0).auto()) }
 }
 
@@ -68,7 +67,7 @@ extension CGRect: AutoCalculator {
 }
 
 extension CGVector: AutoCalculator {
-    
+
     public func auto() -> CGVector {
         return CGVector(dx: dx.auto(), dy: dy.auto())
     }
@@ -87,7 +86,7 @@ extension UIEdgeInsets: AutoCalculator {
 }
 
 extension NSLayoutConstraint {
-    
+
     @IBInspectable private var autoConstant: Bool {
         set {
             guard newValue else { return }
@@ -99,7 +98,7 @@ extension NSLayoutConstraint {
 
 
 extension UILabel {
-    
+
     @IBInspectable private var autoFont: Bool {
         set {
             guard newValue else { return }
@@ -133,7 +132,7 @@ extension UITextView {
 }
 
 fileprivate extension Double {
-    
+
     func rounded(places: Int) -> Double {
         let divisor = pow(10, Double(places))
         return (self * divisor).rounded() / divisor

@@ -7,14 +7,12 @@
 
 import UIKit
 
-
-
 ///  A simple way to get view controller from storyboard
 ///
 /// you can using in next ways, such as extension
 ///
-///      extension Storybord {
-///        public static var another: Storybord { return "Another" }
+///      extension Storyboard {
+///        public static var another: Storyboard { return "Another" }
 ///      }
 ///
 /// or using it with a Enum:
@@ -28,50 +26,49 @@ import UIKit
 ///      }
 public protocol StoryboardLoader: RawRepresentable {
     associatedtype ViewController
-    
+
     var bundle: Bundle? { get }
     var value: ViewController? { get }
 }
 
 extension StoryboardLoader where Self.ViewController : UIViewController, Self.RawValue == String {
-    
+
     public var value: ViewController? {
-        
+
         let storyboard = UIStoryboard(name: rawValue, bundle: bundle)
-        let controller = storyboard.instantiateViewController(withIdentifier: ViewController.identifier)
-        if let controller = controller as? ViewController { return controller }
+        if let controller = storyboard.instantiateViewController(with: ViewController.self) { return controller }
         assertionFailure("cannot load view controller:\(ViewController.identifier) from storyboard:\(rawValue) ")
         return nil
     }
 }
 
-public struct Storybord<T: UIViewController>: StoryboardLoader {
+public struct Storyboard<T: UIViewController>: StoryboardLoader {
     public typealias ViewController = T
-    
+
     public let rawValue: String
     public init(rawValue: String) {
         self.rawValue = rawValue
     }
-    
+
     public var bundle: Bundle? { return nil }
-    
-    public static var main: Storybord<T> {
+
+    public static var main: Storyboard<T> {
         let name = (Bundle.main.object(forInfoDictionaryKey: "UIMainStoryboardFile") as? String) ?? "Main"
-        return Storybord(rawValue: name)
+        return Storyboard(rawValue: name)
     }
 }
 
-extension Storybord: ExpressibleByStringLiteral {
-    
-    public init(stringLiteral value: Storybord.RawValue) {
+extension Storyboard: ExpressibleByStringLiteral {
+
+    public init(stringLiteral value: Storyboard.RawValue) {
         rawValue = value
     }
-    
-    public init(unicodeScalarLiteral value: Storybord.RawValue) {
+
+    public init(unicodeScalarLiteral value: Storyboard.RawValue) {
         rawValue = value
     }
-    
-    public init(extendedGraphemeClusterLiteral value: Storybord.RawValue) {
+
+    public init(extendedGraphemeClusterLiteral value: Storyboard.RawValue) {
         rawValue = value
     }
 }

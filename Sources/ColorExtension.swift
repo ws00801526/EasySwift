@@ -18,10 +18,6 @@ import Cocoa
 public typealias Color = NSColor
 #endif
 
-#if !os(watchOS)
-import CoreImage
-#endif
-
 
 // MARK: - Properties
 
@@ -157,6 +153,15 @@ public extension Color {
 // MARK: - Initializers
 public extension Color {
     
+    
+    /// EasySwift: create color from RGB components
+    ///
+    /// - Parameters:
+    ///   - red:     red value of color
+    ///   - green: green value of color
+    ///   - blue:   blue value of color
+    ///   - alpha: alpha value of color. default is 1.0
+    ///   - p3:      is preferred using p3 color. default is true
     convenience init(red: Int, green: Int, blue: Int, alpha: CGFloat = 1, p3: Bool = true) {
         if #available(iOS 10, *), p3 { self.init(displayP3Red: CGFloat(red) / 255.0, green: CGFloat(green) / 255.0, blue: CGFloat(blue) / 255.0, alpha: alpha) }
         else { self.init(red: CGFloat(red) / 255.0, green: CGFloat(green) / 255.0, blue: CGFloat(blue) / 255.0, alpha: alpha) }
