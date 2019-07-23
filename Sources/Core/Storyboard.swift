@@ -35,9 +35,10 @@ extension StoryboardLoader where Self.ViewController : UIViewController, Self.Ra
 
     public var value: ViewController? {
 
+        let identifier = String(describing: ViewController.self)
         let storyboard = UIStoryboard(name: rawValue, bundle: bundle)
-        if let controller = storyboard.instantiateViewController(with: ViewController.self) { return controller }
-        assertionFailure("cannot load view controller:\(ViewController.identifier) from storyboard:\(rawValue) ")
+        if let controller = storyboard.instantiateViewController(withIdentifier: identifier) as? ViewController { return controller }
+        assertionFailure("Couldn't find ViewController:\(identifier) from storyboard:\(rawValue) ")
         return nil
     }
 }

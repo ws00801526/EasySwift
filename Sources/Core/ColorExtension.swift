@@ -162,7 +162,7 @@ public extension Color {
     ///   - blue:   blue value of color
     ///   - alpha: alpha value of color. default is 1.0
     ///   - p3:      is preferred using p3 color. default is true
-    convenience init(red: Int, green: Int, blue: Int, alpha: CGFloat = 1, p3: Bool = true) {
+    convenience init(red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat = 1, p3: Bool = true) {
         if #available(iOS 10, *), p3 { self.init(displayP3Red: CGFloat(red) / 255.0, green: CGFloat(green) / 255.0, blue: CGFloat(blue) / 255.0, alpha: alpha) }
         else { self.init(red: CGFloat(red) / 255.0, green: CGFloat(green) / 255.0, blue: CGFloat(blue) / 255.0, alpha: alpha) }
     }
@@ -175,8 +175,7 @@ public extension Color {
         let red   = CGFloat(Int.random(in: 0...255))
         let green = CGFloat(Int.random(in: 0...255))
         let blue  = CGFloat(Int.random(in: 0...255))
-        if #available(iOS 10, *), p3 { return .init(displayP3Red: red, green: green, blue: blue, alpha: 1.0) }
-        else { return .init(red: red, green: green, blue: blue, alpha: 1.0) }
+        return .init(red: red, green: green, blue: blue, alpha: 1.0, p3: p3)
     }
     
     /// EasySwift:create a color from hex value which does not contains alpha value
@@ -191,11 +190,7 @@ public extension Color {
         let red     = CGFloat((hex3 & 0xF00) >> 8) / divisor
         let green   = CGFloat((hex3 & 0x0F0) >> 4) / divisor
         let blue    = CGFloat( hex3 & 0x00F      ) / divisor
-        if #available(iOS 10, *), p3 {
-            return .init(displayP3Red: red, green: green, blue: blue, alpha: alpha)
-        } else {
-            return .init(red: red, green: green, blue: blue, alpha: alpha)
-        }
+        return .init(red: red, green: green, blue: blue, alpha: alpha, p3: p3)
     }
     
     /// EasySwift:create a color from hex value
@@ -210,11 +205,7 @@ public extension Color {
         let green   = CGFloat((hex4 & 0x0F00) >>  8) / divisor
         let blue    = CGFloat( hex4 & 0x00F0  >>  4) / divisor
         let alpha   = CGFloat( hex4 & 0x000F       ) / divisor
-        if #available(iOS 10, *), p3 {
-            return .init(displayP3Red: red, green: green, blue: blue, alpha: alpha)
-        } else {
-            return .init(red: red, green: green, blue: blue, alpha: alpha)
-        }
+        return .init(red: red, green: green, blue: blue, alpha: alpha, p3: p3)
     }
     
     
@@ -230,11 +221,7 @@ public extension Color {
         let red     = CGFloat((hex6 & 0xFF0000) >> 16) / divisor
         let green   = CGFloat((hex6 & 0x00FF00) >>  8) / divisor
         let blue    = CGFloat( hex6 & 0x0000FF       ) / divisor
-        if #available(iOS 10, *), p3 {
-            return .init(displayP3Red: red, green: green, blue: blue, alpha: alpha)
-        } else {
-            return .init(red: red, green: green, blue: blue, alpha: alpha)
-        }
+        return .init(red: red, green: green, blue: blue, alpha: alpha, p3: p3)
     }
     
     
@@ -251,11 +238,7 @@ public extension Color {
         let green   = CGFloat((hex8 & 0x00FF0000) >> 16) / divisor
         let blue    = CGFloat((hex8 & 0x0000FF00) >>  8) / divisor
         let alpha   = CGFloat( hex8 & 0x000000FF       ) / divisor
-        if #available(iOS 10, *), p3 {
-            return .init(displayP3Red: red, green: green, blue: blue, alpha: alpha)
-        } else {
-            return .init(red: red, green: green, blue: blue, alpha: alpha)
-        }
+        return .init(red: red, green: green, blue: blue, alpha: alpha, p3: p3)
     }
     
     

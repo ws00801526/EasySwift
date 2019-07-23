@@ -74,7 +74,9 @@ public enum Phone: Int {
         case .i65Full:  return 3.0
         }
     }
+    
     public var size: CGSize { return CGSize(width: width, height: height) }
+    
     public var native: CGSize { return CGSize(width: width * scale, height: height * scale) }
 
     public var isXMode: Bool {
@@ -144,11 +146,14 @@ extension Bool: PhoneVariable {}
 extension Float: PhoneVariable {}
 extension Double: PhoneVariable {}
 extension String: PhoneVariable {}
+
 extension CGRect: PhoneVariable {}
 extension CGSize: PhoneVariable {}
 extension CGFloat: PhoneVariable {}
 extension CGPoint: PhoneVariable {}
+
+extension UIFont: PhoneVariable {}
 extension UIImage: PhoneVariable {}
 extension UIColor: PhoneVariable {}
-extension UIFont: PhoneVariable {}
+extension UIOffset: PhoneVariable {}
 extension UIEdgeInsets: PhoneVariable {}
