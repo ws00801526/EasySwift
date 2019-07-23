@@ -91,7 +91,7 @@ public extension UINavigationBar {
         public static let hidden               = Style(rawValue: 1 << 2)
         
         public static let lightContent         = Style(rawValue: 1 << 3)
-        public static let darkContent         = Style(rawValue: 1 << 4)
+        public static let darkContent          = Style(rawValue: 1 << 4)
         
         /// half
         public static let translucent          = Style(rawValue: 1 << 5)
@@ -106,16 +106,29 @@ public extension UINavigationBar {
     }
 }
 
-open class NavigationController: UINavigationController {
+fileprivate class FakeBar: NSObject, UIToolbarDelegate {
 
-    fileprivate var fromFakeBar: UIToolbar = UIToolbar(frame: .zero) {
-        didSet { self.fromFakeBar.delegate = self.fromFakeBar }
+    lazy var from: UIToolbar = UIToolbar(frame: .zero)
+    lazy var to: UIToolbar = UIToolbar(frame: .zero)
+
+
+    override init() {
+        super.init()
+        from.delegate = self
+        to.delegate = self
     }
-    
-    fileprivate var toFakeBar: UIToolbar = UIToolbar(frame: .zero) {
-        didSet { self.toFakeBar.delegate = self.toFakeBar }
+
+    fileprivate func removeFromSuperView() {
+        to.removeFromSuperview()
+        from.removeFromSuperview()
     }
+
+    func position(for bar: UIBarPositioning) -> UIBarPosition { return .top }
+}
+
+open class NavigationController: UINavigationController {
     
+    fileprivate let fakeBar = FakeBar()
     fileprivate var inTransition: Bool = false
 
     fileprivate var navigationControllerDelegate: UINavigationControllerDelegate?
@@ -126,8 +139,8 @@ open class NavigationController: UINavigationController {
         if let delegate = self.delegate { navigationControllerDelegate = delegate }
         super.delegate = self
         
-        toFakeBar.apply(navigationBar.bounds, config: defaultConfigure)
-        fromFakeBar.apply(navigationBar.bounds, config: defaultConfigure)
+        fakeBar.to.apply(navigationBar.bounds, config: defaultConfigure)
+        fakeBar.from.apply(navigationBar.bounds, config: defaultConfigure)
         navigationBar.apply(defaultConfigure)
     }
 
@@ -251,11 +264,6 @@ extension NavigationController: UINavigationControllerDelegate {
     }
 }
 
-extension NavigationController: UIToolbarDelegate {
-    public func position(for bar: UIBarPositioning) -> UIBarPosition { return .top }
-//    public func position(for bar: UIBarPositioning) -> UIBarPosition { return .top }
-}
-
 fileprivate extension NavigationController {
     func willShow(viewController: UIViewController, animated: Bool) {
 
@@ -281,8 +289,8 @@ fileprivate extension NavigationController {
             if let fromVC = fromVC, from.isVisiable {
                 let frame = fromVC.convertFrameOnView(of: navigationBar)
                 if !frame.isEmpty {
-                    self.fromFakeBar.apply(frame, config: from)
-                    fromVC.view.addSubview(self.fromFakeBar)
+                    self.fakeBar.from.apply(frame, config: from)
+                    fromVC.view.addSubview(self.fakeBar.from)
                 }
             }
             
@@ -290,8 +298,8 @@ fileprivate extension NavigationController {
                 var frame = toVC.convertFrameOnView(of: navigationBar)
                 if !frame.isEmpty {
                     if toVC.extendedLayoutIncludesOpaqueBars || to.isTranslucent { frame.origin.y = toVC.view.bounds.origin.y }
-                    self.toFakeBar.apply(frame, config: to)
-                    toVC.view.addSubview(self.toFakeBar)
+                    self.fakeBar.to.apply(frame, config: to)
+                    toVC.view.addSubview(self.fakeBar.to)
                 }
             }
             
@@ -301,8 +309,7 @@ fileprivate extension NavigationController {
             UIView.setAnimationsEnabled(true)
             }, completion: { [unowned self] context in
                 if context.isCancelled {
-                    self.toFakeBar.removeFromSuperview()
-                    self.fromFakeBar.removeFromSuperview()
+                    self.fakeBar.removeFromSuperView()
                     
                     navigationBar.apply(from)
                     
@@ -337,8 +344,7 @@ fileprivate extension NavigationController {
         }
         
         // remove fake bars
-        toFakeBar.removeFromSuperview()
-        fromFakeBar.removeFromSuperview()
+        fakeBar.removeFromSuperView()
         
         // transition over
         inTransition = false
@@ -349,9 +355,9 @@ extension NavigationController {
     open override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
         
         if let controller = context?.load(as: UIViewController.self), controller == TransitionContext {
-            if let superView = toFakeBar.superview, superView == controller.view, let bar = controller.navigationController?.navigationBar {
+            if let superView = fakeBar.to.superview, superView == controller.view, let bar = controller.navigationController?.navigationBar {
                 let frame = controller.convertFrameOnView(of: bar)
-                if !frame.isEmpty { toFakeBar.frame = frame }
+                if !frame.isEmpty { fakeBar.to.frame = frame }
             }
         }
     }
@@ -397,35 +403,30 @@ fileprivate extension UINavigationBar {
         self.setNeedsDisplay()
     }
     
-    func apply(_ config: Configure, isTransparent: Bool = false) {
+    func apply(_ configure: Configure, isTransparent: Bool = false) {
         
-        apply(config.barStyle, tintColor: config.tintColor)
-        
-        if let attributes = config.textAttributes {
+        apply(configure.barStyle, tintColor: configure.tintColor)
+        backgroundView?.alpha = isTransparent ? 0.0 : 1.0
+
+        if let attributes = configure.textAttributes {
             if let existsAttributes = titleTextAttributes {
                 titleTextAttributes = attributes.merging(existsAttributes) {  a, _ in return a }
             } else {
                 titleTextAttributes = attributes
             }
         }
-        
-//        backgroundView?.alpha = isTransparent ? 0.0 : 1.0
 
-        if isTransparent {
-            setBackgroundImage(.init(), for: .default)
-        } else {
-            // preferred using backgroundView size
-            let size = backgroundView?.bounds.size ?? bounds.size
-            var image = config.isVisiable ? config.backgroundImage : UIImage()
-            if image == nil, let color = config.backgroundColor { image = .init(color: color, size: size) }
-            else if image == nil { image = .init(color: self.barStyle == .black ? .darkGray : .white, size: size) }
-            setBackgroundImage(image, for: .default)
-        }
-        
-        shadowImage = (isTransparent || config.isShadowHidden || !config.isVisiable) ? .init() : config.shadowImage
+        // preferred using backgroundView size
+        let size = backgroundView?.bounds.size ?? bounds.size
+        var image = (configure.isVisiable && !isTransparent) ? configure.backgroundImage : .init()
+        if image == nil, let color = configure.backgroundColor { image = .init(color: color, size: size) }
+        else if image == nil { image = .init(color: self.barStyle == .black ? .darkGray : .white, size: size) }
+        setBackgroundImage(image, for: .default)
+
+        shadowImage = (isTransparent || configure.isShadowHidden || !configure.isVisiable) ? .init() : configure.shadowImage
         // set this later, set barTintColor、backgroundImage with alpha will set isTranslucent = true
-        isTranslucent = isTransparent || config.isTranslucent || !config.isVisiable
-        self.configure = config
+        isTranslucent = isTransparent || configure.isTranslucent || !configure.isVisiable
+        self.configure = configure
     }
 }
 
@@ -449,11 +450,6 @@ fileprivate extension UIToolbar {
         else if image == nil { image = .init(color: self.barStyle == .black ? .darkGray : .white, size: frame.size) }
         setBackgroundImage(image, forToolbarPosition: .any, barMetrics: .default)
     }
-    
-}
-
-extension UIToolbar: UIToolbarDelegate {
-    public func position(for bar: UIBarPositioning) -> UIBarPosition { return .topAttached }
 }
 
 fileprivate extension UIImage {
