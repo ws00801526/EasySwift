@@ -61,15 +61,9 @@ public struct Storyboard<T: UIViewController>: StoryboardLoader {
 
 extension Storyboard: ExpressibleByStringLiteral {
 
-    public init(stringLiteral value: Storyboard.RawValue) {
-        rawValue = value
-    }
+    public init(stringLiteral value: Storyboard.RawValue) { rawValue = value }
 
-    public init(unicodeScalarLiteral value: Storyboard.RawValue) {
-        rawValue = value
-    }
+    public init(unicodeScalarLiteral value: Storyboard.RawValue) { rawValue = value }
 
-    public init(extendedGraphemeClusterLiteral value: Storyboard.RawValue) {
-        rawValue = value
-    }
+    public init(extendedGraphemeClusterLiteral value: Storyboard.RawValue) { rawValue = value }
 }

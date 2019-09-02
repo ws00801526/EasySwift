@@ -16,5 +16,9 @@ Pod::Spec.new do |s|
   s.source           = { :git => 'https://github.com/ws00801526/EasySwift.git', :tag => s.version.to_s }
   s.swift_versions = '5.0'
   s.ios.deployment_target = '9.0'
-  s.source_files = 'Sources/**/*'
+  s.source_files = 'Sources/Core/**/*'
+
+  s.subspec 'Navigation' do |ss|
+    ss.source_files = 'Sources/Navigation/**/*'
+  end
 end
